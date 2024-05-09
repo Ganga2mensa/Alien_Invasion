@@ -2,7 +2,7 @@ import sys
 from time import sleep
 
 import pygame
-from game_stats import GameStats
+from game_stats import GameStat
 from settings import Settings
 
 from ship import Ship
@@ -26,7 +26,7 @@ class AlienInvasion:
 
         pygame.display.set_caption("Alien Invasion")
         # Create an instance to store game statistics.
-        self.stats = GameStats(self)
+        self.stats = GameStat(self)
         self.ship = Ship(self)
         self.bullets = pygame.sprite.Group()
 
@@ -116,6 +116,8 @@ class AlienInvasion:
         # Look for alien-ship collisions.
         if pygame.sprite.spritecollideany(self.ship, self.aliens):
             self._ship_hit()
+        # Look for aliens hitting the bottom of the screen.
+        self._check_aliens_bottom()
     
     def _create_fleet(self):
         """Create the fleet of aliens."""
@@ -177,6 +179,13 @@ class AlienInvasion:
         # Pause.
         sleep(0.5)
 
+    def _check_aliens_bottom(self):
+        """Check if any aliens have reached the bottom of the screen."""
+        for alien in self.aliens.sprites():
+            if alien.rect.bottom >= self.settings.screen_height:
+                # Treat this the same as if the ship got hit.
+                self._ship_hit()
+                break
 
 if __name__ == '__main__':
     # Make a game instance, and run the game.
