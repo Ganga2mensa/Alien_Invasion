@@ -40,7 +40,7 @@ class AlienInvasion:
             for bullet in self.bullets.copy():
                 if bullet.rect.bottom <= 0:
                     self.bullets.remove(bullet)
-            print(len(self.bullets))
+            #print(len(self.bullets))
 
             self._update_screen()
                    
@@ -93,8 +93,19 @@ class AlienInvasion:
         """Create the fleet of aliens."""
         # Make an alien.
         alien = Alien(self)
-        self.aliens.add(alien)
-    
+        alien_width = alien.rect.width
+        current_x = alien_width
+        while current_x < (self.settings.screen_width - 2 * alien_width):
+            self._create_alien(current_x)
+            current_x += 2 * alien_width
+
+    def _create_alien(self, x_position):
+        """Create an alien and place it in the row."""
+        new_alien = Alien(self)
+        new_alien.x = x_position
+        new_alien.rect.x = x_position
+        self.aliens.add(new_alien)
+
     def _update_screen(self):
         """Update images on the screen, and flip to the new screen."""
         self.screen.fill(self.settings.bg_color)
