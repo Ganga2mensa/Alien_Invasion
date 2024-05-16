@@ -11,22 +11,33 @@ from bullet import Bullet
 from alien import Alien
 from time import sleep
 from scoreboard import Scoreboard
+from players_names import get_player_name
 
 class AlienInvasion:
     """Overall class to manage game assets and behavior."""
     def __init__(self):
         """Initialize the game, and create game resources."""
+        
         pygame.init()
         
+        self.screen = pygame.display.set_mode((600, 500))
+        pygame.display.set_caption("Alien Invasion")
+        
         self.clock = pygame.time.Clock()
+        self.base_font = pygame.font.Font(None, 32)
+        
+        
+        # Get player name
+        player_name = get_player_name(self.screen, self.clock, self.base_font)
+        print("Player name:", player_name)
+
+        self.screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
 
         self.settings = Settings()
-        self.screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
         self.settings.screen_width = self.screen.get_rect().width
         self.settings.screen_height = self.screen.get_rect().height
         #self.screen = pygame.display.set_mode((self.settings.screen_width, self.settings.screen_height))
 
-        pygame.display.set_caption("Alien Invasion")
         
         # Create an instance to store game statistics, 
         # and create a scoreboard. 
@@ -46,7 +57,11 @@ class AlienInvasion:
         # Make the Play button.
         self.play_button = Button(self, "Play")
 
+        
+
     def run_game(self):
+        """Player Registartation Before the game starts"""
+
         """Start the main loop for the game."""
         while True:
             self._check_events()
@@ -79,7 +94,32 @@ class AlienInvasion:
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 mouse_pos = pygame.mouse.get_pos()
                 self._check_play_button(mouse_pos)
-
+    
+    def _handle_mouse_click(self, active, input_rect, event_pos):
+        if input_rect.collidepoint(event_pos):
+            active = True
+        else:
+            active = False
+        return active
+    
+    def _draw_input_ext(self,active):
+        # Clear the screen
+        #self.screen.fill((255, 255, 255))
+        
+        # Draw input box
+        if active:
+            color = self.settings.color_active
+        else:
+            color = self.settings.color_passive
+        pygame.draw.rect(self.screen, color, self.settings.input_rect)
+        
+        # Render user text
+        text_surface = self.settings.base_font.render(self.settings.user_text, True, (255, 255, 255))
+        self.screen.blit(text_surface, (self.settings.input_rect.x + 5, self.settings.input_rect.y + 5))
+        
+        # Adjust input box width
+        self.settings.input_rect.w = max(100, text_surface.get_width() + 10)
+    
     def _check_keydown_events(self, event):
         """Respond to keypresses."""
         if event.key == pygame.K_RIGHT:
